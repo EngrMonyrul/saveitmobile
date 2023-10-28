@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +23,11 @@ class HomePageView extends StatefulWidget {
 class _HomePageViewState extends State<HomePageView> {
   @override
   void initState() {
+    final homePageProvider = Provider.of<HomePageProvider>(context, listen: false);
     // TODO: implement initState
     super.initState();
     getPermission();
+    homePageProvider.setHistoryValues();
   }
 
   @override
@@ -39,38 +43,132 @@ class _HomePageViewState extends State<HomePageView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * .05),
-                  Text('NOTE: Copy A Video Link & Press On That Button To Download\nDonwnloaded In: SAVEiT',
-                      textAlign: TextAlign.center),
-                  SizedBox(height: MediaQuery.of(context).size.height * .35),
-                  CupertinoButton(
-                    onPressed: () {
-                      getText(provider: value);
-                      downloadMethod(context: context, provider: value);
-                    },
-                    child: RippleWave(
-                      color: Colors.lightBlue,
-                      duration: Duration(seconds: 1),
-                      repeat: true,
-                      child: CircleAvatar(
-                        radius: 25,
-                        backgroundColor: Colors.blue,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Icon(
-                            CupertinoIcons.cloud_download,
-                            color: Colors.white,
-                            size: 30,
+                  Text(value.downloadedMsg, textAlign: TextAlign.center),
+                  SizedBox(
+                    height: value.downloading
+                        ? MediaQuery.of(context).size.height * 0.15
+                        : MediaQuery.of(context).size.height * .3,
+                  ),
+                  SizedBox(
+                    child: value.downloading
+                        ? Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                height: MediaQuery.of(context).size.height * .47,
+                                width: MediaQuery.of(context).size.width,
+                                child: CircularProgressIndicator(
+                                  value: value.downloadProgress / 100,
+                                ),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    value.downloadProgress == 0
+                                        ? 'Recognising File'
+                                        : '${value.downloadProgress.toStringAsFixed(2)}%',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  CupertinoButton(
+                                    color: Colors.blue,
+                                    onPressed: () {
+                                      value.setCancelToken();
+                                      value.setDownloaderNil();
+                                      value.setDownloading(value: false);
+                                    },
+                                    child: Text('Cancel'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : CupertinoButton(
+                            onPressed: () {
+                              getText(provider: value);
+                              value.setDownloading(value: true);
+                              downloadMethod(context: context, provider: value);
+                            },
+                            child: RippleWave(
+                              color: Colors.lightBlue,
+                              duration: Duration(seconds: 1),
+                              repeat: true,
+                              child: CircleAvatar(
+                                radius: 25,
+                                backgroundColor: Colors.blue,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    CupertinoIcons.cloud_download,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
                   ),
                   Spacer(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      CupertinoButton(
+                        onPressed: () {
+                          value.setSelectedItem(value: 1);
+                        },
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * .1,
+                          width: MediaQuery.of(context).size.width / 4,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              color: value.selectedItem == 1 ? Colors.lightBlueAccent : Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(5, 5),
+                                ),
+                              ]),
+                          child: Icon(CupertinoIcons.play_arrow,
+                              size: 30, color: value.selectedItem == 1 ? Colors.white : Colors.blue),
+                        ),
+                      ),
+                      CupertinoButton(
+                        onPressed: () {
+                          value.setSelectedItem(value: 2);
+                        },
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * .1,
+                          width: MediaQuery.of(context).size.width / 4,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              color: value.selectedItem == 2 ? Colors.lightBlueAccent : Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(-5, 5),
+                                ),
+                              ]),
+                          child: Icon(CupertinoIcons.music_note_list,
+                              size: 30, color: value.selectedItem == 2 ? Colors.white : Colors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     margin: EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                       color: Colors.white,
                       boxShadow: [

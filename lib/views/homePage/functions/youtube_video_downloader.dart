@@ -6,6 +6,9 @@ import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 youtubeDownloader({required HomePageProvider provider, required String path}) async {
   Uri uri = Uri.parse(provider.downloadLink);
+  dynamic streamInfo;
+  dynamic downloadPath;
+  print(uri.path);
   String videoId = '';
   if (uri.host.contains('youtube')) {
     videoId = uri.queryParameters['v']!;
@@ -14,29 +17,41 @@ youtubeDownloader({required HomePageProvider provider, required String path}) as
     videoId = uri.pathSegments.first;
   }
 
-  print(videoId);
-
   YoutubeExplode youtubeExplode = YoutubeExplode();
   Dio dio = Dio();
+  var videoFile = await youtubeExplode.videos.get(videoId);
+  final name = videoFile.title;
   if (videoId != null) {
     var manifest = await youtubeExplode.videos.streamsClient.getManifest(videoId);
-    var streamInfo = await manifest.muxed.withHighestBitrate();
+    if (provider.selectedItem == 1) {
+      streamInfo = await manifest.muxed.withHighestBitrate();
+      downloadPath = '$path$name.mp4';
+    } else {
+      streamInfo = await manifest.audioOnly.withHighestBitrate();
+      downloadPath = '$path$name.mp3';
+    }
     if (streamInfo != null) {
-      final name = basename(provider.downloadLink);
-      var downloadPath = '$path$name.mp4';
       Response response = await dio.download(
         streamInfo.url.toString(),
         downloadPath,
+        cancelToken: provider.cancelToken,
         onReceiveProgress: (received, total) {
           if (total != -1) {
-            final progress = (received / total * 100).toStringAsFixed(2);
-            print('Download Progress: $progress%');
+            final progress = (received / total * 100);
+            print(progress);
+            provider.setDownloadProgress(value: progress);
           }
         },
       );
 
       if (response.statusCode == 200) {
-        print('Download Completed');
+        provider.setDownloading(value: false);
+        provider.setDownloaderNil();
+        if (provider.selectedItem == 1) {
+          provider.setMsg(msg: 'File Saved In\nFolder - SAVEiT\nFile - $name.mp4');
+        } else {
+          provider.setMsg(msg: 'File Saved In\nFolder - SAVEiT\nFile - $name.mp3');
+        }
       }
     }
   }
