@@ -13,6 +13,9 @@ class HomePageProvider extends ChangeNotifier {
   String _downloadedMsg = 'NOTE: Copy A Video Link & Press On That Button To Download\nDonwnloaded In: SAVEiT';
   int _selectedItem = 1;
   List<HistoryModel> _historyValues = [];
+  bool _historyLoading = false;
+
+  bool get historyLoading => _historyLoading;
 
   List<dynamic> get historyValues => _historyValues;
 
@@ -29,6 +32,7 @@ class HomePageProvider extends ChangeNotifier {
   String get downloadLink => _downloadLink;
 
   void setHistoryValues() async {
+    _historyLoading = true;
     _historyValues.clear();
     final path = await getPath();
     List data = [];
@@ -53,6 +57,8 @@ class HomePageProvider extends ChangeNotifier {
         _historyValues.add(model);
       }
     }
+    _historyLoading = false;
+    notifyListeners();
   }
 
   void setSelectedItem({required int value}) {

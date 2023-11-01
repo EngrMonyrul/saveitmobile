@@ -38,15 +38,15 @@ class _HomePageViewState extends State<HomePageView> {
           builder: (context, value, child) {
             return FadeIn(
               duration: const Duration(seconds: 3),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: ListView(
+                // mainAxisAlignment: MainAxisAlignment.start,
+                // crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * .05),
                   Text(value.downloadedMsg, textAlign: TextAlign.center),
                   SizedBox(
                     height: value.downloading
-                        ? MediaQuery.of(context).size.height * 0.15
+                        ? MediaQuery.of(context).size.height * 0.1
                         : MediaQuery.of(context).size.height * .3,
                   ),
                   SizedBox(
@@ -92,8 +92,14 @@ class _HomePageViewState extends State<HomePageView> {
                         : CupertinoButton(
                             onPressed: () {
                               getText(provider: value);
-                              value.setDownloading(value: true);
-                              downloadMethod(context: context, provider: value);
+                              if (value.downloadLink.contains('youtube') || value.downloadLink.contains('youtu.be')) {
+                                value.setDownloading(value: true);
+                                downloadMethod(context: context, provider: value);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    duration: Duration(seconds: 1),
+                                    content: Center(child: Text('Copy YouTube Video Link'))));
+                              }
                             },
                             child: RippleWave(
                               color: Colors.lightBlue,
@@ -114,7 +120,7 @@ class _HomePageViewState extends State<HomePageView> {
                             ),
                           ),
                   ),
-                  Spacer(),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.2),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -212,6 +218,8 @@ class _HomePageViewState extends State<HomePageView> {
                         ),
                         InkWell(
                           onTap: () {
+                            getPermission();
+                            value.setHistoryValues();
                             Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPageView()));
                           },
                           child: Icon(Icons.history, size: 30, color: Colors.black),

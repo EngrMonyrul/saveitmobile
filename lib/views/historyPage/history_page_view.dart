@@ -27,52 +27,60 @@ class _HistoryPageViewState extends State<HistoryPageView> {
       body: Consumer<HomePageProvider>(builder: (context, value, child) {
         return Padding(
           padding: const EdgeInsets.all(10.0),
-          child: ListView.builder(
-            itemCount: value.historyValues.length,
-            itemBuilder: (context, index) {
-              return CupertinoButton(
-                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => VideoPlayerScreen(videoPath: value.historyValues[index].path)));
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: Offset(5, 5),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                      leading: value.historyValues[index].icon,
-                      title: Text(value.historyValues[index].name),
-                      subtitle: Text(value.historyValues[index].path),
-                      trailing: InkWell(
-                        onTap: () async {
-                          Directory directory = Directory(value.historyValues[index].path);
-                          if (await directory.exists()) {
-                            directory.delete(recursive: true);
-                            value.setHistoryValues();
-                          }
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.grey)),
-                          child: Icon(CupertinoIcons.delete),
+          child: value.historyLoading
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  itemCount: value.historyValues.length,
+                  itemBuilder: (context, index) {
+                    return CupertinoButton(
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => VideoPlayerScreen(videoPath: value.historyValues[index].path)));
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(5, 5),
+                            ),
+                          ],
                         ),
-                      )),
+                        child: ListTile(
+                          leading: value.historyValues[index].icon,
+                          title: Text(value.historyValues[index].name),
+                          subtitle: Text(value.historyValues[index].path),
+                          trailing: InkWell(
+                            onTap: () async {
+                              Directory directory = Directory(value.historyValues[index].path);
+                              print(directory.path);
+                              print(await directory.exists());
+                              if (await directory.exists()) {
+                                directory.delete(recursive: true);
+                                value.setHistoryValues();
+                              } else {
+                                directory.delete(recursive: true);
+                                value.setHistoryValues();
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.grey)),
+                              child: Icon(CupertinoIcons.delete),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         );
       }),
     );

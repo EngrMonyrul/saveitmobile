@@ -5,13 +5,25 @@ import 'package:saveitmobile/views/homePage/provider/home_page_provider.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 youtubeDownloader({required HomePageProvider provider, required String path}) async {
-  Uri uri = Uri.parse(provider.downloadLink);
+  Uri uri = Uri();
+  if (provider.downloadLink.contains('shorts')) {
+    uri = Uri.parse(provider.downloadLink);
+  } else {
+    uri = Uri.parse(provider.downloadLink);
+  }
   dynamic streamInfo;
   dynamic downloadPath;
-  print(uri.path);
+  print('Uri - ${uri.path}');
   String videoId = '';
   if (uri.host.contains('youtube')) {
-    videoId = uri.queryParameters['v']!;
+    if (uri.pathSegments.contains('shorts')) {
+      int shortsIndex = uri.pathSegments.indexOf('shorts');
+      if (shortsIndex < uri.pathSegments.length - 1) {
+        videoId = uri.pathSegments[shortsIndex + 1];
+      }
+    } else {
+      videoId = uri.queryParameters['v'] ?? '';
+    }
   }
   if (uri.host.contains('youtu.be')) {
     videoId = uri.pathSegments.first;

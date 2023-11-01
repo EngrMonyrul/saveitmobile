@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,8 +6,9 @@ import 'package:saveitmobile/views/homePage/home_page_view.dart';
 import 'package:provider/provider.dart';
 import 'package:saveitmobile/views/homePage/provider/home_page_provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.white));
   runApp(const MyApp());
 }
